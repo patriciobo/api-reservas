@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoReserva {
+  PENDIENTE
+  PAGO_PARCIAL
+  PAGADA
+  CANCELADA
+}
+
+model Usuario {
+  id       String @id @default(uuid())
+  email    String @unique
+  nombre   String
+  password String
+}
+
+model Reserva {
+  id           String        @id @default(uuid())
+  fechaEntrada DateTime
+  fechaSalida  DateTime
+  cantPersonas Int
+  precioTotal  Float
+  estado       EstadoReserva @default(PENDIENTE)
+  sena         Float
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  estadias Estadia[]
+}
+
+model Estadia {
+  id           String   @id @default(uuid())
+  cantPersonas Int
+  precio       Float
+  fechaEntrada DateTime
+  fechaSalida  DateTime
+
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
+  reservaId String
+
+  inmueble   Inmueble? @relation(fields: [inmuebleId], references: [id])
+  inmuebleId Int?
+
+  habitacion   Habitacion? @relation(fields: [habitacionId], references: [id])
+  habitacionId Int?
+
+  cama   Cama? @relation(fields: [camaId], references: [id])
+  camaId Int?
+}
+
+model Alojamiento {
+  id        Int    @id @default(autoincrement())
+  nombre    String
+  direccion String
+  ciudad    String
+  provincia String
+
+  inmueble Inmueble[]
+}
+
+model Inmueble {
+  id               Int    @id @default(autoincrement())
+  nombre           String
+  maxPersonas      Int?
+  precioPorNoche   Float?
+  precioPorMes     Float?
+  precioPorPersona Float?
+
+  alojamiento   Alojamiento  @relation(fields: [alojamientoId], references: [id])
+  alojamientoId Int
+  habitaciones  Habitacion[]
+
+  estadias Estadia[]
+}
+
+model Habitacion {
+  id               Int    @id @default(autoincrement())
+  nombre           String
+  maxPersonas      Int?
+  precioPorNoche   Float?
+  precioPorMes     Float?
+  precioPorPersona Float?
+
+  Inmueble   Inmueble @relation(fields: [inmuebleId], references: [id])
+  inmuebleId Int
+  camas      Cama[]
+
+  estadias Estadia[]
+}
+
+model Cama {
+  id               Int    @id @default(autoincrement())
+  nombre           String
+  maxPersonas      Int?
+  precioPorNoche   Float
+  precioPorMes     Float?
+  precioPorPersona Float?
+
+  Habitacion   Habitacion @relation(fields: [habitacionId], references: [id])
+  habitacionId Int
+
+  estadias Estadia[]
+}

@@ -1,0 +1,10 @@
+Dockerfile
+docker-compose.yaml
+docker-compose.prod.yaml
+node_modules/
+postgres/
+dist/
+.dockerignore
+.git
+.gitignore
+.vscode

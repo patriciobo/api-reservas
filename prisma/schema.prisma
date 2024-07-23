@@ -20,6 +20,12 @@ enum EstadoReserva {
   CANCELADA
 }
 
+enum TipoAlojamiento {
+  CAMA
+  HABITACION
+  INMUEBLE_COMPLETO
+}
+
 model Usuario {
   id       String @id @default(uuid())
   email    String @unique
@@ -34,32 +40,13 @@ model Reserva {
   cantPersonas Int
   precioTotal  Float
   estado       EstadoReserva @default(PENDIENTE)
-  sena         Float
+  sena         Float?
+
+  tipoAlojamiento TipoAlojamiento
+  alojamientoId   Int
 
   fechaCreacion      DateTime @default(now())
   fechaActualizacion DateTime @updatedAt
-
-  estadias Estadia[]
-}
-
-model Estadia {
-  id           String   @id @default(uuid())
-  cantPersonas Int
-  precio       Float
-  fechaEntrada DateTime
-  fechaSalida  DateTime
-
-  reserva   Reserva @relation(fields: [reservaId], references: [id])
-  reservaId String
-
-  inmueble   Inmueble? @relation(fields: [inmuebleId], references: [id])
-  inmuebleId Int?
-
-  habitacion   Habitacion? @relation(fields: [habitacionId], references: [id])
-  habitacionId Int?
-
-  cama   Cama? @relation(fields: [camaId], references: [id])
-  camaId Int?
 }
 
 model Alojamiento {
@@ -83,8 +70,6 @@ model Inmueble {
   alojamiento   Alojamiento  @relation(fields: [alojamientoId], references: [id])
   alojamientoId Int
   habitaciones  Habitacion[]
-
-  estadias Estadia[]
 }
 
 model Habitacion {
@@ -98,8 +83,6 @@ model Habitacion {
   Inmueble   Inmueble @relation(fields: [inmuebleId], references: [id])
   inmuebleId Int
   camas      Cama[]
-
-  estadias Estadia[]
 }
 
 model Cama {
@@ -112,6 +95,4 @@ model Cama {
 
   Habitacion   Habitacion @relation(fields: [habitacionId], references: [id])
   habitacionId Int
-
-  estadias Estadia[]
 }
